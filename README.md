@@ -1,4 +1,4 @@
-# tera
+# Tera
 
 `tera` 是一个面向代码仓库的轻量本地 coding agent。它直接跑在终端里，先看当前工作区，再用一组受约束的工具去读文件、改文件、跑命令，并把会话状态保存在本地 `.tera/` 目录里。
 
@@ -23,20 +23,6 @@
   - OpenAI 兼容 Responses API
   - Anthropic 兼容 Messages API
   - DeepSeek Anthropic 兼容 API
-
-## 使用截图
-
-CLI 帮助信息：
-
-![tera help](assets/screenshots/pico-help.png)
-
-启动界面：
-
-![tera start](assets/screenshots/pico-start.png)
-
-REPL 内置命令与会话路径：
-
-![tera repl](assets/screenshots/pico-repl.png)
 
 ## 安装
 
@@ -85,7 +71,7 @@ python -m tera
 Tera 启动时会读取项目根目录的 `.env`。本地真实 key 放在 `.env`，仓库只保留 `.env.example`。配置优先级是：
 
 ```text
-显式 CLI 参数 > .env 里的 PICO_* 变量 > 旧环境变量 > 代码默认值
+显式 CLI 参数 > .env 里的 TERA_* 变量 > 旧环境变量 > 代码默认值
 ```
 
 不传 `--provider` 时默认使用 `deepseek`。这是推荐配置路径：DeepSeek 的 Anthropic-compatible endpoint 比本地 Ollama 更少依赖本机模型环境，也比 OpenAI-compatible/Anthropic-compatible 代理少一层默认 gateway 假设。其他 provider 仍然保留，可以显式传 `--provider openai`、`--provider anthropic` 或 `--provider ollama`。
@@ -105,14 +91,14 @@ cp .env.example .env
 最小配置只需要 key：
 
 ```bash
-PICO_DEEPSEEK_API_KEY="your-api-key"
+TERA_DEEPSEEK_API_KEY="your-api-key"
 ```
 
 默认模型和接口是：
 
 ```bash
-PICO_DEEPSEEK_API_BASE="https://api.deepseek.com/anthropic"
-PICO_DEEPSEEK_MODEL="deepseek-v4-pro"
+TERA_DEEPSEEK_API_BASE="https://api.deepseek.com/anthropic"
+TERA_DEEPSEEK_MODEL="deepseek-v4-pro"
 ```
 
 所以常规情况下 `.env` 里只填 `PICO_DEEPSEEK_API_KEY` 就能直接启动：
@@ -139,7 +125,7 @@ right.codes 在 Tera 里有两条可选 provider 路径：
 如果 right.codes 给你的是一把共享 key，推荐只填这一项：
 
 ```bash
-PICO_RIGHT_CODES_API_KEY="your-right-codes-key"
+TERA_RIGHT_CODES_API_KEY="your-right-codes-key"
 ```
 
 然后按需要选择 provider：
@@ -152,11 +138,11 @@ uv run tera --provider anthropic
 如果你想显式区分两条 provider 的 key，也可以分别配置：
 
 ```bash
-PICO_OPENAI_API_KEY="your-right-codes-key-for-codex"
-PICO_ANTHROPIC_API_KEY="your-right-codes-key-for-claude"
+TERA_OPENAI_API_KEY="your-right-codes-key-for-codex"
+TERA_ANTHROPIC_API_KEY="your-right-codes-key-for-claude"
 ```
 
-不要在 `.env` 里写 `PICO_OPENAI_API_KEY=$PICO_RIGHT_CODES_API_KEY` 这种 shell 展开形式；Tera 的 `.env` 解析器只读取字面量，不展开变量引用。要么只写 `PICO_RIGHT_CODES_API_KEY`，要么把 key 字符串分别填到 provider-specific 变量里。
+不要在 `.env` 里写 `PICO_OPENAI_API_KEY=$PICO_RIGHT_CODES_API_KEY` 这种 shell 展开形式；Tera 的 `.env` 解析器只读取字面量，不展开变量引用。要么只写 `TERA_RIGHT_CODES_API_KEY`，要么把 key 字符串分别填到 provider-specific 变量里。
 
 如果请求 right.codes 返回 `API Key额度不足`，说明协议和 endpoint 已经打通，但当前 key 没有可用额度；换一把有额度的 key，或到 right.codes 后台处理额度。
 
@@ -164,9 +150,9 @@ PICO_ANTHROPIC_API_KEY="your-right-codes-key-for-claude"
 
 | provider | base URL | API key | model |
 | --- | --- | --- | --- |
-| `deepseek` | `PICO_DEEPSEEK_API_BASE`，回退 `DEEPSEEK_API_BASE`，默认 `https://api.deepseek.com/anthropic` | `PICO_DEEPSEEK_API_KEY`，回退 `DEEPSEEK_API_KEY` | `PICO_DEEPSEEK_MODEL`，回退 `DEEPSEEK_MODEL`，默认 `deepseek-v4-pro` |
-| `openai` | `PICO_OPENAI_API_BASE`，回退 `OPENAI_API_BASE`，默认 `https://www.right.codes/codex/v1` | `PICO_OPENAI_API_KEY`，回退 `OPENAI_API_KEY`、`PICO_RIGHT_CODES_API_KEY`、`RIGHT_CODES_API_KEY`、`PICO_ANTHROPIC_API_KEY`、`ANTHROPIC_API_KEY` | `PICO_OPENAI_MODEL`，回退 `OPENAI_MODEL`，默认 `gpt-5.4` |
-| `anthropic` | `PICO_ANTHROPIC_API_BASE`，回退 `ANTHROPIC_API_BASE`，默认 `https://www.right.codes/claude/v1` | `PICO_ANTHROPIC_API_KEY`，回退 `ANTHROPIC_API_KEY`、`PICO_RIGHT_CODES_API_KEY`、`RIGHT_CODES_API_KEY`、`PICO_OPENAI_API_KEY`、`OPENAI_API_KEY` | `PICO_ANTHROPIC_MODEL`，回退 `ANTHROPIC_MODEL`，默认 `claude-sonnet-4-6` |
+| `deepseek` | `TERA_DEEPSEEK_API_BASE`，回退 `DEEPSEEK_API_BASE`，默认 `https://api.deepseek.com/anthropic` | `TERA_DEEPSEEK_API_KEY`，回退 `DEEPSEEK_API_KEY` | `TERA_DEEPSEEK_MODEL`，回退 `DEEPSEEK_MODEL`，默认 `deepseek-v4-pro` |
+| `openai` | `TERA_OPENAI_API_BASE`，回退 `OPENAI_API_BASE`，默认 `https://www.right.codes/codex/v1` | `TERA_OPENAI_API_KEY`，回退 `OPENAI_API_KEY`、`TERA_RIGHT_CODES_API_KEY`、`RIGHT_CODES_API_KEY`、`TERA_ANTHROPIC_API_KEY`、`ANTHROPIC_API_KEY` | `PICO_OPENAI_MODEL`，回退 `OPENAI_MODEL`，默认 `gpt-5.4` |
+| `anthropic` | `TERA_ANTHROPIC_API_BASE`，回退 `ANTHROPIC_API_BASE`，默认 `https://www.right.codes/claude/v1` | `TERA_ANTHROPIC_API_KEY`，回退 `ANTHROPIC_API_KEY`、`TERA_RIGHT_CODES_API_KEY`、`RIGHT_CODES_API_KEY`、`TERA_OPENAI_API_KEY`、`OPENAI_API_KEY` | `TERA_ANTHROPIC_MODEL`，回退 `ANTHROPIC_MODEL`，默认 `claude-sonnet-4-6` |
 | `ollama` | `--host`，默认 `http://127.0.0.1:11434` | 不需要 | `--model`，默认 `qwen3.5:4b` |
 
 如果有额外的敏感环境变量需要从 trace/report 里脱敏，可以用 `PICO_SECRET_ENV_NAMES` 配置逗号分隔的变量名，或启动时重复传 `--secret-env-name NAME`。
@@ -182,17 +168,17 @@ uv run tera --provider openai
 默认 OpenAI 兼容接口使用 right.codes 的 Codex endpoint：
 
 ```bash
-PICO_OPENAI_API_BASE="https://www.right.codes/codex/v1"
-PICO_RIGHT_CODES_API_KEY="your-right-codes-key"
-PICO_OPENAI_MODEL="gpt-5.4"
+TERA_OPENAI_API_BASE="https://www.right.codes/codex/v1"
+TERA_RIGHT_CODES_API_KEY="your-right-codes-key"
+TERA_OPENAI_MODEL="gpt-5.4"
 ```
 
 也可以改成其他 OpenAI-compatible 服务：
 
 ```bash
-PICO_OPENAI_API_BASE="https://your-api.example/v1"
-PICO_OPENAI_API_KEY="your-api-key"
-PICO_OPENAI_MODEL="gpt-5.4"
+TERA_OPENAI_API_BASE="https://your-api.example/v1"
+TERA_OPENAI_API_KEY="your-api-key"
+TERA_OPENAI_MODEL="gpt-5.4"
 ```
 
 ### Anthropic 兼容接口
@@ -206,9 +192,9 @@ uv run tera --provider anthropic
 默认 Anthropic 兼容接口使用 right.codes 的 Claude endpoint：
 
 ```bash
-PICO_ANTHROPIC_API_BASE="https://www.right.codes/claude/v1"
-PICO_RIGHT_CODES_API_KEY="your-right-codes-key"
-PICO_ANTHROPIC_MODEL="claude-sonnet-4-6"
+TERA_ANTHROPIC_API_BASE="https://www.right.codes/claude/v1"
+TERA_RIGHT_CODES_API_KEY="your-right-codes-key"
+TERA_ANTHROPIC_MODEL="claude-sonnet-4-6"
 ```
 
 如果你的服务端对多个兼容接口复用了同一套密钥，`tera` 也支持从 `PICO_ANTHROPIC_API_KEY` 回退到 `ANTHROPIC_API_KEY`、`PICO_RIGHT_CODES_API_KEY`、`RIGHT_CODES_API_KEY`、`PICO_OPENAI_API_KEY` 或 `OPENAI_API_KEY`。
